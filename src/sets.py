@@ -1,4 +1,5 @@
 import numpy as np
+from math import log
 
 
 class Fractal:
@@ -26,23 +27,27 @@ class Mandelbrot(Fractal):
             z = z * z + c
             yield z
 
-    def is_stable(self, c):
+    def divergence(self, c):
         z = 0
         for i, z in enumerate(self.sequence(c)):
             print(i, z)
             if abs(z) > 2:
-                return i
+                return i + 1 - log(log(abs(z))) / log(2)
             if i >= self.max_iterations:
                 return self.max_iterations
 
     def generate(self):
         for i, row in enumerate(self.matrix):
             for j, c in enumerate(row):
-                self.output[i, j] = self.is_stable(c)
+                self.output[i, j] = self.stability(c)
         return self.output
 
+    def stability(self, c):
+        divergence = self.divergence(c)
+        return max(0.0, min(1.0, divergence / self.max_iterations))
+
     def __contains__(self, c: complex) -> bool:
-        return ~(self.is_stable(c) < self.max_iterations)
+        return ~(self.stability(c) < self.max_iterations)
 
 
 if __name__ == "__main__":
