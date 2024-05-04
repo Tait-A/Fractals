@@ -38,11 +38,11 @@ class Mandelbrot(Fractal):
             if i >= self.max_iterations:
                 return self.max_iterations
 
-    def stability(self, c):
+    def stability(self, c: complex) -> int:
         divergence = self.divergence(c)
         return max(0.0, min(1.0, (divergence / self.max_iterations)))
 
-    def generate(self, smoothing: bool = False):
+    def generate(self, smoothing: bool = False) -> np.ndarray:
         z = np.zeros_like(self.matrix, dtype=np.complex64)
         output = np.zeros(self.matrix.shape, dtype=np.float32)
 
@@ -60,7 +60,15 @@ class Mandelbrot(Fractal):
         return self.output
 
     def __contains__(self, c: complex) -> bool:
-        return ~(self.stability(c) < self.max_iterations)
+        return ~(self.stability(c) < 1)
+
+
+class Julia(Fractal):
+    def __init__(
+        self, c: complex, max_iterations, pixel_density, width=2, height=2
+    ) -> "Julia":
+        super().__init__(max_iterations, pixel_density, width, height)
+        self.c = c
 
 
 if __name__ == "__main__":
