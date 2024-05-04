@@ -11,9 +11,12 @@ class Fractal:
         self.matrix = self.complex_mat(width, height, pixel_density)
 
     def complex_mat(self, width, height, pixel_density):
-        re = np.linspace(-width / 2, width / 2, width * pixel_density)
-        im = np.linspace(-height / 2, height / 2, height * pixel_density)
+        re = np.linspace(-width, width, width * pixel_density)
+        im = np.linspace(-height, height, height * pixel_density)
         return re[np.newaxis, :] + im[:, np.newaxis] * 1j
+
+    def generate(self):
+        raise NotImplementedError
 
 
 class Mandelbrot(Fractal):
@@ -30,21 +33,27 @@ class Mandelbrot(Fractal):
     def divergence(self, c):
         z = 0
         for i, z in enumerate(self.sequence(c)):
-            print(i, z)
             if abs(z) > 2:
                 return i + 1 - log(log(abs(z))) / log(2)
             if i >= self.max_iterations:
                 return self.max_iterations
 
-    def generate(self):
-        for i, row in enumerate(self.matrix):
-            for j, c in enumerate(row):
-                self.output[i, j] = self.stability(c)
-        return self.output
-
     def stability(self, c):
         divergence = self.divergence(c)
-        return max(0.0, min(1.0, divergence / self.max_iterations))
+        return max(0.0, min(1.0, (divergence / self.max_iterations)))
+
+    def generate(self):
+        z = np.zeros_like(self.matrix, dtype=np.complex64)
+        output = np.zeros(self.matrix.shape, dtype=np.float32)
+
+        for i in range(self.max_iterations):
+            mask = np.abs(z) <= 2
+            z[mask] = z[mask] * z[mask] + self.matrix[mask]
+            output[mask] = i
+
+        # output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
+        self.output = np.uint8(np.clip(output / self.max_iterations, 0, 1) * 255)
+        return self.output
 
     def __contains__(self, c: complex) -> bool:
         return ~(self.stability(c) < self.max_iterations)

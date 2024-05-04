@@ -10,10 +10,14 @@ class Visualiser:
 
     def display(self):
         output = self.fractal.generate()
-        img = np.zeros_like(output)
-        for i in range(output.shape[0]):
-            for j in range(output.shape[1]):
-                img[i, j] = (1 - output[i, j]) * 255
+        img = output
+        print
 
         img = Image.fromarray(img)
         img.show()
+
+
+if __name__ == "__main__":
+    m = Mandelbrot(50, 10000)
+    v = Visualiser(m)
+    v.display()
