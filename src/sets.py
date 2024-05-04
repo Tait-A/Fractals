@@ -42,7 +42,7 @@ class Mandelbrot(Fractal):
         divergence = self.divergence(c)
         return max(0.0, min(1.0, (divergence / self.max_iterations)))
 
-    def generate(self):
+    def generate(self, smoothing: bool = False):
         z = np.zeros_like(self.matrix, dtype=np.complex64)
         output = np.zeros(self.matrix.shape, dtype=np.float32)
 
@@ -51,7 +51,11 @@ class Mandelbrot(Fractal):
             z[mask] = z[mask] * z[mask] + self.matrix[mask]
             output[mask] = i
 
-        # output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
+        if smoothing:
+            output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
+            # mask for output is not a number
+            mask = np.isnan(output)
+            output[mask] = self.max_iterations
         self.output = np.uint8(np.clip(output / self.max_iterations, 0, 1) * 255)
         return self.output
 
