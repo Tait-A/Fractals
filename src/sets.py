@@ -10,7 +10,7 @@ class Fractal:
         )
         self.matrix = self.complex_mat(width, height, pixel_density)
 
-    def complex_mat(self, width, height, pixel_density):
+    def complex_mat(self, width, height, pixel_density) -> np.ndarray:
         re = np.linspace(-width, width, width * pixel_density)
         im = np.linspace(-height, height, height * pixel_density)
         return re[np.newaxis, :] + im[:, np.newaxis] * 1j
@@ -42,11 +42,17 @@ class Mandelbrot(Fractal):
         divergence = self.divergence(c)
         return max(0.0, min(1.0, (divergence / self.max_iterations)))
 
-    def generate(self, smoothing: bool = False) -> np.ndarray:
-        z = np.zeros_like(self.matrix, dtype=np.complex64)
-        output = np.zeros(self.matrix.shape, dtype=np.float32)
+    def generate(
+        self, iterations: int = None, matrix: np.ndarray = None, smoothing: bool = False
+    ) -> np.ndarray:
+        if iterations is None:
+            iterations = self.max_iterations
+        if matrix is None:
+            matrix = self.matrix
+        z = np.zeros_like(matrix, dtype=np.complex64)
+        output = np.zeros_like(matrix, dtype=np.float32)
 
-        for i in range(self.max_iterations):
+        for i in range(iterations):
             mask = np.abs(z) <= 2
             z[mask] = z[mask] * z[mask] + self.matrix[mask]
             output[mask] = i
@@ -55,8 +61,8 @@ class Mandelbrot(Fractal):
             output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
             # mask for output is not a number
             mask = np.isnan(output)
-            output[mask] = self.max_iterations
-        self.output = np.uint8(np.clip(output / self.max_iterations, 0, 1) * 255)
+            output[mask] = iterations
+        self.output = np.uint8(np.clip(output / iterations, 0, 1) * 255)
         return self.output
 
     def __contains__(self, c: complex) -> bool:
