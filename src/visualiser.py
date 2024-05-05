@@ -62,6 +62,6 @@ class Pixel:
 
 
 if __name__ == "__main__":
-    m = Mandelbrot(50, 10000)
+    m = Mandelbrot(50, 1000)
     v = Visualiser(m, smoothing=True)
     v.display()
