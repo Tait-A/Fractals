@@ -76,6 +76,45 @@ class Julia(Fractal):
         super().__init__(max_iterations, pixel_density, width, height)
         self.c = c
 
+    def sequence(self, z: complex):
+        while True:
+            z = z * z + self.c
+            yield z
+
+    def divergence(self, z: complex):
+        for i, z in enumerate(self.sequence(z)):
+            if abs(z) > 2:
+                return i + 1 - log(log(abs(z))) / log(2)
+            if i >= self.max_iterations:
+                return self.max_iterations
+
+    def stability(self, z: complex) -> int:
+        divergence = self.divergence(z)
+        return max(0.0, min(1.0, (divergence / self.max_iterations)))
+
+    def generate(
+        self, iterations: int = None, matrix: np.ndarray = None, smoothing: bool = False
+    ) -> np.ndarray:
+        if iterations is None:
+            iterations = self.max_iterations
+        if matrix is None:
+            matrix = self.matrix
+        z = matrix
+        output = np.zeros_like(matrix, dtype=np.float32)
+
+        for i in range(iterations):
+            mask = np.abs(z) <= 2
+            z[mask] = z[mask] * z[mask] + self.c
+            output[mask] = i
+
+        if smoothing:
+            output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
+            # mask for output is not a number
+            mask = np.isnan(output)
+            output[mask] = iterations
+        self.output = np.uint8(np.clip(output / iterations, 0, 1) * 255)
+        return self.output
+
 
 if __name__ == "__main__":
     m = Mandelbrot(100, 100)
