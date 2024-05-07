@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-from sets import Fractal, Mandelbrot
+from sets import Fractal, Mandelbrot, Julia
 from dataclasses import dataclass
 
 
@@ -11,7 +11,7 @@ class Visualiser:
         self.smoothing = smoothing
 
     def display(self):
-        img = self.fractal.generate(self.smoothing)
+        img = self.fractal.generate()
         img = Image.fromarray(img)
         img.show()
 
@@ -62,6 +62,8 @@ class Pixel:
 
 
 if __name__ == "__main__":
-    m = Mandelbrot(50, 1000)
-    v = Visualiser(m, smoothing=True)
+    # m = Mandelbrot(50, 1000)
+    c = complex(0.28, 0.008)
+    j = Julia(c, 100, 10000)
+    v = Visualiser(j, smoothing=True)
     v.display()

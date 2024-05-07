@@ -117,5 +117,7 @@ class Julia(Fractal):
 
 
 if __name__ == "__main__":
+    c = complex(0, 0)
+    j = Julia(c, 100, 10)
     m = Mandelbrot(100, 100)
     print()
