@@ -62,7 +62,7 @@ class Mandelbrot(Fractal):
             # mask for output is not a number
             mask = np.isnan(output)
             output[mask] = iterations
-        self.output = np.uint8(np.clip(output / iterations, 0, 1) * 255)
+        self.output = np.clip(output / iterations, 0, 1)
         return self.output
 
     def __contains__(self, c: complex) -> bool:
@@ -112,7 +112,7 @@ class Julia(Fractal):
             # mask for output is not a number
             mask = np.isnan(output)
             output[mask] = iterations
-        self.output = np.uint8(np.clip(output / iterations, 0, 1) * 255)
+        self.output = np.clip(output / iterations, 0, 1)
         return self.output
 
 

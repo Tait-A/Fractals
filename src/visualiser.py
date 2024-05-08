@@ -2,6 +2,7 @@ import numpy as np
 from PIL import Image
 from sets import Fractal, Mandelbrot, Julia
 from dataclasses import dataclass
+import matplotlib.pyplot as plt
 
 
 # A visualiser for fractals
@@ -11,12 +12,19 @@ class Visualiser:
         self.smoothing = smoothing
 
     def display(self):
-        img = self.fractal.generate()
+        img = self.fractal.generate(self.smoothing)
+        img = self.get_colour(img)
         img = Image.fromarray(img)
         img.show()
 
     def set_smoothing(self, smoothing: bool):
         self.smoothing = smoothing
+
+    def get_colour(self, input: np.ndarray, cmap_name="hot"):
+        """Convert a value in the range 0 to 1 to an RGB color from the given colormap."""
+        cmap = plt.get_cmap(cmap_name)  # Get the colormap
+        rgba = cmap(input)  # Get RGBA value from the colormap
+        return np.uint8(rgba[..., :3] * 255)
 
 
 @dataclass
@@ -64,6 +72,6 @@ class Pixel:
 if __name__ == "__main__":
     # m = Mandelbrot(50, 1000)
     c = complex(0.28, 0.008)
-    j = Julia(c, 100, 10000)
+    j = Julia(c, 100, 1000)
     v = Visualiser(j, smoothing=True)
     v.display()
