@@ -12,7 +12,7 @@ class Visualiser:
         self.smoothing = smoothing
 
     def display(self):
-        img = self.fractal.generate(self.smoothing)
+        img = self.fractal.generate(smoothing=self.smoothing)
         img = self.get_colour(img)
         img = Image.fromarray(img)
         img.show()
@@ -70,7 +70,7 @@ class Pixel:
 
 
 if __name__ == "__main__":
-    # m = Mandelbrot(50, 1000)
+    m = Mandelbrot(50, 100)
     c = complex(0.28, 0.008)
     j = Julia(c, 100, 1000)
     v = Visualiser(j, smoothing=True)

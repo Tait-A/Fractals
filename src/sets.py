@@ -58,10 +58,10 @@ class Mandelbrot(Fractal):
             output[mask] = i
 
         if smoothing:
-            output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
-            # mask for output is not a number
-            mask = np.isnan(output)
-            output[mask] = iterations
+            mask = np.abs(z) > 2
+            output[mask] += 1 - np.log(np.log(np.abs(z[mask]))) / np.log(2)
+            output[~mask] = iterations
+
         self.output = np.clip(output / iterations, 0, 1)
         return self.output
 
@@ -108,10 +108,10 @@ class Julia(Fractal):
             output[mask] = i
 
         if smoothing:
-            output = output + 1 - np.log(np.log(np.abs(z))) / np.log(2)
-            # mask for output is not a number
-            mask = np.isnan(output)
-            output[mask] = iterations
+            mask = np.abs(z) > 2
+            output[mask] += 1 - np.log(np.log(np.abs(z[mask]))) / np.log(2)
+            output[~mask] = iterations
+
         self.output = np.clip(output / iterations, 0, 1)
         return self.output
 
