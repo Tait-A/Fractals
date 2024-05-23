@@ -76,7 +76,11 @@ class ColorMap:
         indices = (values * (self.n - 1)).astype(int)
         colors = self.map[indices]
         if self.output_type == "Qt":
-            qcolors = np.array([Qcolor(*color) for color in colors])
+
+            def to_qcolor(color):
+                return Qcolor(*color)
+
+            qcolors = np.apply_along_axis(to_qcolor, -1, colors)
             return qcolors
         elif self.output_type == "matplotlib":
             return colors / 256

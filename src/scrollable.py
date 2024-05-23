@@ -11,6 +11,8 @@ from PyQt5.QtWidgets import (
 import numpy as np
 from sets import Fractal, Mandelbrot, Julia
 import matplotlib.pyplot as plt
+from colourmap import ColorMap, Color
+from PIL import Image
 
 
 # This is the core item that contains the fractal
@@ -24,7 +26,7 @@ class FractalItem(QGraphicsItem):
     def boundingRect(self):
         return self.rect
 
-    def paint(self, painter, option, widget):
+    def paint(self, painter, size, widget):
         x0, y0, width, height = (
             self.rect.left(),
             self.rect.top(),
@@ -34,27 +36,32 @@ class FractalItem(QGraphicsItem):
 
         x = np.linspace(x0, x0 + width, self.size.width())
         y = np.linspace(y0, y0 + height, self.size.height())
+        print("x: ", x)
+        print("y: ", y)
+        print("width: ", width)
+        print("height: ", height)
         X, Y = np.meshgrid(x, y)
         C = X + Y * 1j
+        # print(C)
         iters = int(100 / np.sqrt(width))
         Z = self.fractal.generate(iters, C)
+        # print(Z)
+        # img = Image.fromarray(Z)
+        # img.show()
         Z = self.get_colour(Z)
 
         image = QImage(self.size.width(), self.size.height(), QImage.Format_RGB32)
         for i in range(self.size.height()):
             for j in range(self.size.width()):
                 color = Z[i, j]
-                image.setPixel(j, i, color)
+                image.setPixelColor(j, i, color)
 
         painter.drawImage(self.rect.topLeft(), image)
 
     def get_colour(self, input: np.ndarray, cmap_name="hot") -> np.ndarray:
         "Convert the values in the matrix from (0,1) to a Qcolor object"
-        cmap = plt.get_cmap(cmap_name)
-        norm = plt.Normalize(vmin=np.min(input), vmax=np.max(input))
-        rgba = cmap(norm(input))
-        rgb = (rgba[:, :, :3] * 255).astype(np.uint8)
-        qcolors = np.array([QColor(*color) for color in rgb.reshape(-1, 3)])
+        cmap = ColorMap()
+        qcolors = cmap(input)
         return qcolors
 
 
@@ -88,7 +95,7 @@ class Scrollable(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    fractal = Mandelbrot(100, 512)
+    fractal = Mandelbrot(100, 100)
     main_win = Scrollable(fractal)
     main_win.show()
     sys.exit(app.exec_())
