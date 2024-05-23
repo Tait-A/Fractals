@@ -54,7 +54,7 @@ class Mandelbrot(Fractal):
 
         for i in range(iterations):
             mask = np.abs(z) <= 2
-            z[mask] = z[mask] * z[mask] + self.matrix[mask]
+            z[mask] = z[mask] * z[mask] + matrix[mask]
             output[mask] = i
 
         if smoothing:
