@@ -15,7 +15,9 @@ class Fractal:
         im = np.linspace(-height, height, height * pixel_density)
         return re[np.newaxis, :] + im[:, np.newaxis] * 1j
 
-    def generate(self):
+    def generate(
+        self, iterations: int = None, matrix: np.ndarray = None, smoothing: bool = False
+    ) -> np.ndarray:
         raise NotImplementedError
 
 

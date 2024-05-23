@@ -101,7 +101,7 @@ class ColorMap:
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    cmap = ColorMap([Color.RED, Color.GREEN, Color.BLUE], "matplotlib")
+    cmap = ColorMap(output_type="matplotlib")
 
     x = np.linspace(0, 1, 100)
     y = (np.sin(2 * np.pi * x) + 1) * 0.5

@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import (
     QGraphicsScene,
     QGraphicsItem,
     QMainWindow,
+    QWidget,
 )
 import numpy as np
 from sets import Fractal, Mandelbrot, Julia
@@ -17,37 +18,35 @@ from PIL import Image
 
 # This is the core item that contains the fractal
 class FractalItem(QGraphicsItem):
-    def __init__(self, rect: QRectF, size: QSize, fractal: Fractal):
+    def __init__(self, size: QSize, bounds: QRectF, fractal: Fractal):
         super().__init__()
-        self.rect = rect
+        self.rect = QRectF(0, 0, size.width(), size.height())
         self.size = size
+        self.bounds = bounds
         self.fractal = fractal
 
     def boundingRect(self):
         return self.rect
 
-    def paint(self, painter, size, widget):
+    def complex_mat(self, x1, x2, y1, y2, x_pixels, y_pixels):
+        re = np.linspace(x1, x2, x_pixels)
+        im = np.linspace(y1, y2, y_pixels)
+        return re[np.newaxis, :] + im[:, np.newaxis] * 1j
+
+    def paint(self, painter, option, widget):
         x0, y0, width, height = (
-            self.rect.left(),
-            self.rect.top(),
-            self.rect.width(),
-            self.rect.height(),
+            self.bounds.left(),
+            self.bounds.top(),
+            self.bounds.width(),
+            self.bounds.height(),
         )
 
-        x = np.linspace(x0, x0 + width, self.size.width())
-        y = np.linspace(y0, y0 + height, self.size.height())
-        print("x: ", x)
-        print("y: ", y)
-        print("width: ", width)
-        print("height: ", height)
-        X, Y = np.meshgrid(x, y)
-        C = X + Y * 1j
-        # print(C)
+        C = self.complex_mat(
+            x0, x0 + width, y0, y0 + height, self.size.width(), self.size.height()
+        )
+
         iters = int(100 / np.sqrt(width))
-        Z = self.fractal.generate(iters, C)
-        # print(Z)
-        # img = Image.fromarray(Z)
-        # img.show()
+        Z = self.fractal.generate(iters, C, True)
         Z = self.get_colour(Z)
 
         image = QImage(self.size.width(), self.size.height(), QImage.Format_RGB32)
@@ -60,42 +59,73 @@ class FractalItem(QGraphicsItem):
 
     def get_colour(self, input: np.ndarray, cmap_name="hot") -> np.ndarray:
         "Convert the values in the matrix from (0,1) to a Qcolor object"
-        cmap = ColorMap()
+        cmap = ColorMap([Color.RED, Color.BLACK])
         qcolors = cmap(input)
         return qcolors
 
+    def update_bounds(self, bounds: QRectF):
+        self.bounds = bounds
+        self.update()
 
-class Scrollable(QMainWindow):
+
+class MandelbrotViewer(QMainWindow):
     def __init__(self, fractal):
         super().__init__()
-        self.scene = QGraphicsScene()
-        self.view = QGraphicsView(self.scene, self)
+
+        self.scene = QGraphicsScene(self)
+        self.view = QGraphicsView(self.scene)
         self.setCentralWidget(self.view)
 
-        # The coordinates for the Mandelbrot set and the size of the image
-        self.mandelbrotItem = FractalItem(
-            QRectF(-2.0, -1.5, 3.0, 3.0), QSize(800, 600), fractal
-        )
+        self.bounds = QRectF(-2, -1.5, 3, 3)
+        # Define the Mandelbrot item
+        self.mandelbrotItem = FractalItem(QSize(800, 600), self.bounds, fractal)
         self.scene.addItem(self.mandelbrotItem)
-        self.view.fitInView(self.mandelbrotItem, Qt.KeepAspectRatio)
 
-        # Enable dragging and scroll bars
-        self.view.setDragMode(QGraphicsView.ScrollHandDrag)
-        self.view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        # Set the scene rectangle to match the item
+        self.scene.setSceneRect(self.mandelbrotItem.boundingRect())
+
+        self.view.setRenderHint(QPainter.Antialiasing)
+        self.view.fitInView(self.scene.sceneRect(), Qt.KeepAspectRatio)
 
         self.setWindowTitle("Mandelbrot Set Viewer")
-        self.setGeometry(100, 100, 600, 800)
+        self.setGeometry(0, 0, 800, 600)
+
+        # Enable zoom functionality
+        self.view.setDragMode(QGraphicsView.ScrollHandDrag)
+        self.view.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.view.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
 
     def wheelEvent(self, event):
         # Zoom in or out when the mouse wheel is used
-        factor = 1.1 if event.angleDelta().y() > 0 else 0.9
-        self.view.scale(factor, factor)
+        zoom_factor = 1.25
+        if event.angleDelta().y() > 0:
+            scale_factor = zoom_factor
+        else:
+            scale_factor = 1 / zoom_factor
+
+        self.view.scale(scale_factor, scale_factor)
+        self.update_bounds()
+
+    def update_bounds(self):
+        # Get the current view rectangle in scene coordinates
+        view_rect = self.view.mapToScene(self.view.viewport().geometry()).boundingRect()
+
+        # Map the view rectangle to the mathematical coordinates
+        scene_width, scene_height = self.scene.width(), self.scene.height()
+        bounds_width, bounds_height = self.bounds.width(), self.bounds.height()
+
+        new_x = self.bounds.left() + (view_rect.left() / scene_width) * bounds_width
+        new_y = self.bounds.top() + (view_rect.top() / scene_height) * bounds_height
+        new_width = (view_rect.width() / scene_width) * bounds_width
+        new_height = (view_rect.height() / scene_height) * bounds_height
+
+        new_bounds = QRectF(new_x, new_y, new_width, new_height)
+        self.mandelbrotItem.update_bounds(new_bounds)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    fractal = Mandelbrot(100, 100)
-    main_win = Scrollable(fractal)
+    fractal = Mandelbrot(100, 1000)
+    main_win = MandelbrotViewer(fractal)
     main_win.show()
     sys.exit(app.exec_())
