@@ -74,7 +74,7 @@ class ColorMap:
             warnings.warn("Values must be between 0 and 1. May have unintended results")
             values = np.clip(values, 0, 1)
         indices = (values * (self.n - 1)).astype(int)
-        colors = self.map[indices]
+        colors = self.map[indices].astype(np.uint8)
         if self.output_type == "Qt":
 
             def to_qcolor(color):
