@@ -7,7 +7,7 @@ import warnings
 """ Custom colourmaps for use with Fractal Visualiser"""
 
 
-class Color(Enum):
+class Colour(Enum):
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
@@ -21,12 +21,12 @@ class Color(Enum):
     PINK = (255, 191, 203)
 
 
-class ColorMap:
+class ColourMap:
     def __init__(
-        self, colors: List[Color] = [Color.RED, Color.MAGENTA], output_type: str = "Qt"
-    ) -> "ColorMap":
+        self, colours: List[Colour] = [Colour.RED, Colour.MAGENTA], output_type: str = "Qt"
+    ) -> "ColourMap":
         self.n = 256
-        self.colors = colors
+        self.colours = colours
 
         match output_type:
             case "Qt":
@@ -38,10 +38,10 @@ class ColorMap:
             case _:
                 raise ValueError("Output type must be 'Qt', 'matplotlib' or 'rgb'")
 
-        self.map = self.create_colormap(colors)
+        self.map = self.create_colourmap(colours)
 
-    def gradient(self, start: Color, end: Color, n: int) -> np.ndarray[Tuple]:
-        "Return a list of n colors between start and end"
+    def gradient(self, start: Colour, end: Colour, n: int) -> np.ndarray[Tuple]:
+        "Return a list of n colours between start and end"
         r0, g0, b0 = start.value
         r1, g1, b1 = end.value
 
@@ -52,12 +52,12 @@ class ColorMap:
 
         return np.array([(rr, gg, bb) for rr, gg, bb in zip(r, g, b)])
 
-    def create_colormap(self, colors: List[Color]) -> np.ndarray[Tuple]:
-        "Create a colormap from a list of colors"
-        n = len(colors)
+    def create_colourmap(self, colours: List[Colour]) -> np.ndarray[Tuple]:
+        "Create a colourmap from a list of colours"
+        n = len(colours)
         gradient = []
         for i in range(n - 1):
-            gradient.extend(self.gradient(colors[i], colors[i + 1], self.n // (n - 1)))
+            gradient.extend(self.gradient(colours[i], colours[i + 1], self.n // (n - 1)))
         self.n = len(gradient)
         return np.array(gradient)
 
@@ -74,38 +74,38 @@ class ColorMap:
             warnings.warn("Values must be between 0 and 1. May have unintended results")
             values = np.clip(values, 0, 1)
         indices = (values * (self.n - 1)).astype(int)
-        colors = self.map[indices].astype(np.uint8)
+        colours = self.map[indices].astype(np.uint8)
         if self.output_type == "Qt":
 
             def to_qcolor(color):
                 return Qcolor(*color)
 
-            qcolors = np.apply_along_axis(to_qcolor, -1, colors)
+            qcolors = np.apply_along_axis(to_qcolor, -1, colours)
             return qcolors
         elif self.output_type == "matplotlib":
-            return colors / 256
-        return colors
+            return colours / 256
+        return colours
 
     def _eval(self, value: float) -> Qcolor:
         if value < 0 or value > 1:
             raise ValueError("Value must be between 0 and 1")
         index = int(value * (self.n - 1))
-        color = self.map[index]
+        colour = self.map[index]
         if self.output_type == "Qt":
-            return Qcolor(*color)
+            return Qcolor(*colour)
         elif self.output_type == "matplotlib":
-            return color / 256
-        return color
+            return colour / 256
+        return colour
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
-    cmap = ColorMap(output_type="matplotlib")
+    cmap = ColourMap(output_type="matplotlib")
 
     x = np.linspace(0, 1, 100)
     y = (np.sin(2 * np.pi * x) + 1) * 0.5
 
-    colors = cmap(y)
-    plt.scatter(x, y, c=colors)
+    colours = cmap(y)
+    plt.scatter(x, y, c=colours)
     plt.show()
