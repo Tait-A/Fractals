@@ -1,0 +1,16 @@
+[workspace]
+authors = ["Tait-A <alistairjtait1@gmail.com>"]
+channels = ["conda-forge"]
+name = "Fractal"
+platforms = ["osx-64"]
+version = "0.1.0"
+
+[tasks]
+julia = "python src/visualiser.py"
+
+[dependencies]
+matplotlib = ">=3.10.1,<4"
+pyside6 = ">=6.9.0,<7"
+pillow = ">=11.1.0,<12"
+numpy = ">=2.2.5,<3"
+python = "3.10.*"

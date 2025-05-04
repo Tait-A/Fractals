@@ -163,3 +163,7 @@ cython_debug/
 *.png
 output
 fractalenv/*
+assets
+# pixi environments
+.pixi
+*.egg-info
