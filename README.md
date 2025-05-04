@@ -2,7 +2,10 @@
 
 ### A repository for visualising mandelbrot and julia sets
 
-To run, set the size values in ```visualiser.py``` and run the file.
+To run install pixi: https://pixi.sh/dev/
+
+And then run with:
+```pixi install && pixi run julia```
 
 The colour gradient can be set by passing a list of colours to the ColourMap constructor, and this can then be applied to the fractal by passing the colourmap to the visualiser.
 
