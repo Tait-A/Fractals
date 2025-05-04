@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List, Union, Tuple
 import numpy as np
-from PyQt5.QtGui import QColor as Qcolor
+from PySide6.QtGui import QColor
 import warnings
 
 """ Custom colourmaps for use with Fractal Visualiser"""
@@ -63,13 +63,13 @@ class ColourMap:
 
     def __call__(
         self, input: Union[float, np.ndarray]
-    ) -> Union[Qcolor, np.ndarray[Qcolor]]:
+    ) -> Union[QColor, np.ndarray[QColor]]:
         if isinstance(input, float):
             return self._eval(input)
         elif isinstance(input, np.ndarray):
             return self._eval_matrix(input)
 
-    def _eval_matrix(self, values: np.ndarray[float]) -> np.ndarray[Qcolor]:
+    def _eval_matrix(self, values: np.ndarray[float]) -> np.ndarray[QColor]:
         if np.any(values < 0) or np.any(values > 1):
             warnings.warn("Values must be between 0 and 1. May have unintended results")
             values = np.clip(values, 0, 1)
@@ -77,22 +77,22 @@ class ColourMap:
         colours = self.map[indices].astype(np.uint8)
         if self.output_type == "Qt":
 
-            def to_qcolor(color):
-                return Qcolor(*color)
+            def to_qColor(color):
+                return QColor(*color)
 
-            qcolors = np.apply_along_axis(to_qcolor, -1, colours)
-            return qcolors
+            qColors = np.apply_along_axis(to_qColor, -1, colours)
+            return qColors
         elif self.output_type == "matplotlib":
             return colours / 256
         return colours
 
-    def _eval(self, value: float) -> Qcolor:
+    def _eval(self, value: float) -> QColor:
         if value < 0 or value > 1:
             raise ValueError("Value must be between 0 and 1")
         index = int(value * (self.n - 1))
         colour = self.map[index]
         if self.output_type == "Qt":
-            return Qcolor(*colour)
+            return QColor(*colour)
         elif self.output_type == "matplotlib":
             return colour / 256
         return colour

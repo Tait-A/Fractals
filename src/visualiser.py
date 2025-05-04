@@ -1,8 +1,6 @@
 import numpy as np
 from PIL import Image
 from sets import Fractal, Mandelbrot, Julia
-from dataclasses import dataclass
-import matplotlib.pyplot as plt
 from colourmap import ColourMap, Colour
 
 

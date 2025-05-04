@@ -1,7 +1,7 @@
 import sys
-from PyQt5.QtGui import QPainter, QImage, QColor
-from PyQt5.QtCore import QRectF, Qt, QSize
-from PyQt5.QtWidgets import (
+from PySide6.QtGui import QPainter, QImage, QColor
+from PySide6.QtCore import QRectF, Qt, QSize
+from PySide6.QtWidgets import (
     QApplication,
     QGraphicsView,
     QGraphicsScene,
