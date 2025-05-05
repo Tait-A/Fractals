@@ -2,6 +2,8 @@ import numpy as np
 from PIL import Image
 from sets import Fractal, Mandelbrot, Julia
 from colourmap import ColourMap, Colour
+import argparse
+import random
 
 
 # A visualiser for fractals
@@ -24,10 +26,28 @@ class Visualiser:
 
 
 if __name__ == "__main__":
-    m = Mandelbrot(60, 1000)
-    c = complex(0.28, 0.008)
+    parser = argparse.ArgumentParser(description="Visualise fractals.")
+    parser.add_argument("--real", type=float, required=False, help="Real part of the complex number.")
+    parser.add_argument("--imag", type=float, required=False, help="Imaginary part of the complex number.")
+    args = parser.parse_args()
+
+    real = args.real
+    imaginary = args.imag
+
+    if real is None:
+        real = random.uniform(-1, 1)
+
+    if imaginary is None:
+        imaginary = random.uniform(-1, 1)
+
+    no_colours = random.randint(2, 4)
+    colours = [random.choice(list(Colour)) for _ in range(no_colours)]
+    colourmap = ColourMap(colours, "rgb")
+    print(f"Using colours: {colours}")
+    print(f"Real part: {real}, Imaginary part: {imaginary}")
+
+    c = complex(real, imaginary)
     j = Julia(c, 100, 1000)
-    colourmap = ColourMap([Colour.BLACK, Colour.MAGENTA], "rgb")
     v = Visualiser(j, smoothing=True, colourmap=colourmap)
 
     x = np.linspace(-1, 1, 5000)

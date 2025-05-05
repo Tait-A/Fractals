@@ -7,6 +7,9 @@ To run install pixi: https://pixi.sh/dev/
 And then run with:
 ```pixi install && pixi run julia```
 
+This will generate a random Julia set, to specify the complex number use the args '--real' and '--imag':
+```pixi run julia --real 0.28 --image 0.008```
+
 The colour gradient can be set by passing a list of colours to the ColourMap constructor, and this can then be applied to the fractal by passing the colourmap to the visualiser.
 
 The output will be opened as a PNG
