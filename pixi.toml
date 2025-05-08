@@ -6,7 +6,7 @@ platforms = ["osx-64"]
 version = "0.1.0"
 
 [tasks]
-julia = "python src/visualiser.py"
+julia = "python -m scripts.julia"
 
 [dependencies]
 matplotlib = ">=3.10.1,<4"
