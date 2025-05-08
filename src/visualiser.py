@@ -100,6 +100,16 @@ def julia() -> None:
     v.display()
 
 
+def mandelbrot() -> None:
+    """Visualise a Mandelbrot set."""
+    _, _, colourmap = parse()
+
+    m = Mandelbrot(100, 1000)
+    v = Visualiser(m, smoothing=True, colourmap=colourmap)
+
+    v.display()
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Visualise fractals.")
     parser.add_argument("--real", type=float, required=False, help="Real part of the complex number.")

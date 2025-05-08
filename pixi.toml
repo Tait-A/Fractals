@@ -7,6 +7,7 @@ version = "0.1.0"
 
 [tasks]
 julia = "python -m scripts.julia"
+mandelbrot = "python -m scripts.mandelbrot"
 
 [dependencies]
 matplotlib = ">=3.10.1,<4"
