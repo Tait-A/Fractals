@@ -23,6 +23,7 @@ The colour gradient can be set using the flag ```--colour```, this works for bot
 
 The output will be opened as a PNG
 
+![julia_magenta](https://github.com/user-attachments/assets/1597a40a-8906-467f-9a2f-b3dc813ea36a)
 
 
 ### TODO
